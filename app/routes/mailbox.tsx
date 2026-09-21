@@ -1,0 +1,11 @@
+import { Inbox, Search, Star } from "lucide-react";
+import { Link, useLoaderData } from "react-router";
+import { MailStore } from "../lib/mail/store.server";
+import type { MailType } from "../lib/mail/types";
+import { getCloudflareContext } from "../lib/request-context.server";
+import { requireSession } from "../lib/auth.server";
+import { Shell } from "../components/shell";
+
+const formatDate = (date: string) => new Intl.DateTimeFormat("ja-JP", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(date));
+export async function loader({ request, context }: { request: Request; context: ReadonlyMap<unknown, unknown> }) { const { env } = getCloudflareContext(context); await requireSession(request, env); const type: MailType = new URL(request.url).pathname === "/sent" ? "sent" : "inbox"; return { type, items: await new MailStore(env.MAIL_KV).list(type) }; }
+export default function Mailbox() { const { type, items } = useLoaderData<typeof loader>(), title = type === "inbox" ? "受信トレイ" : "送信済み"; return <Shell><section className="mail-list"><header className="list-header"><div><p className="eyebrow">{type.toUpperCase()}</p><h1>{title}</h1></div><span className="count-badge">{items.length}</span></header><div className="search"><Search size={17} /><input placeholder="メールを検索" /></div><div className="messages">{items.length ? items.map(mail => <Link key={mail.id} className="message-row" to={`/mails/${type}/${mail.id}`}><span className={mail.retained ? "star retained" : "star"}><Star size={16} fill={mail.retained ? "currentColor" : "none"} /></span><div className="message-content"><div><b>{mail.from}</b><time>{formatDate(mail.timestamp)}</time></div><strong>{mail.subject || "(件名なし)"}</strong><p>{mail.retained ? "保持中" : `期限: ${new Date(mail.expiresAt!).toLocaleDateString("ja-JP")}`}</p></div></Link>) : <div className="empty-state"><Inbox size={26} /><b>メールはありません</b><span>新しいメールが届くと、ここに表示されます。</span></div>}</div></section></Shell>; }

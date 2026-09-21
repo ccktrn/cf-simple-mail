@@ -1,0 +1,8 @@
+import { LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { Form, redirect, useActionData, useNavigation } from "react-router";
+import { verifyPassword } from "../lib/auth/password.server";
+import { createSession, sessionCookie, sessionTtl } from "../lib/auth/session.server";
+import { getCloudflareContext } from "../lib/request-context.server";
+
+export async function action({ request, context }: { request: Request; context: ReadonlyMap<unknown, unknown> }) { const { env } = getCloudflareContext(context); const form = await request.formData(), password = form.get("password"); if (typeof password !== "string" || !await verifyPassword(password, env.AUTH_PASSWORD_VERIFIER)) return { error: "パスワードを確認してください。" }; const ttl = sessionTtl(env.SESSION_TTL_SECONDS), secure = new URL(request.url).protocol === "https:"; throw redirect("/inbox", { headers: { "Set-Cookie": sessionCookie(await createSession(env.SESSION_SECRET, ttl), ttl, secure) } }); }
+export default function Login() { const data = useActionData<typeof action>(), navigation = useNavigation(); return <main className="login-shell"><section className="login-card"><div className="brand-mark"><Mail size={25} /></div><p className="eyebrow">PRIVATE INBOX</p><h1>Recovery Mail</h1><p className="login-copy">大切なリカバリーメールを、安全でシンプルな場所に。</p><Form method="post"><label>パスワード<input type="password" name="password" placeholder="パスワードを入力" autoFocus /></label>{data?.error && <p className="form-error">{data.error}</p>}<button className="primary-button" disabled={navigation.state !== "idle"}>{navigation.state === "idle" ? "ロックを解除" : "確認中…"}<LockKeyhole size={16} /></button></Form><p className="secure-note"><ShieldCheck size={15} /> Cloudflare Access によって保護されています</p></section></main>; }

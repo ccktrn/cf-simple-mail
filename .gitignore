@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+public/
+build/
+dist/
+.react-router/
+*.tsbuildinfo
+.dev.vars

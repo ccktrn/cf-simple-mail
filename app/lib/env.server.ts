@@ -1,0 +1,1 @@
+export interface Env { MAIL_KV: KVNamespace; MAIL_PROVIDER: "resend" | "cloudflare"; MAIL_FROM?: string; MAIL_FROM_ADDRESSES?: string; MAIL_TTL_SECONDS?: string; SESSION_TTL_SECONDS?: string; AUTH_PASSWORD_VERIFIER: string; SESSION_SECRET: string; RESEND_API_KEY?: string; EMAIL?: { send(message: unknown): Promise<{ id: string }> }; }
