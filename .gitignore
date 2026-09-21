@@ -6,3 +6,6 @@ dist/
 .react-router/
 *.tsbuildinfo
 .dev.vars
+.dev.vars.*
+!.dev.vars.example
+

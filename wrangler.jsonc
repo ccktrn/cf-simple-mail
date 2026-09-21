@@ -6,7 +6,7 @@
   "kv_namespaces": [{ "binding": "MAIL_KV", "id": "be9ad1ea42274e25a046d5b2723a703b" }],
   "vars": {
     "MAIL_PROVIDER": "resend",
-    "MAIL_FROM_ADDRESSES": "[\"recovery@example.com\", \"support@example.com\"]",
+    "MAIL_FROM_ADDRESSES": "[\"recovery@ktrn.cc\", \"support@ktrn.cc\"]",
     "MAIL_TTL_SECONDS": "604800",
     "SESSION_TTL_SECONDS": "1800"
   }
