@@ -1208,7 +1208,7 @@ Max-Age=1800
 
 ```text
 ┌──────────────────────────────────────────┐
-│ Recovery Mail                    [Lock]  │
+│ Simple Mail                    [Lock]  │
 ├────────────┬─────────────────────────────┤
 │ Inbox      │                             │
 │ Sent       │     Mail / Compose          │
