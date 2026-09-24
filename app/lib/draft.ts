@@ -1,0 +1,1 @@
+export type DraftStatus = "draft" | "failed"; export interface DraftMail { id: string; from?: string; to: string[]; subject: string; text: string; html?: string; status: DraftStatus; createdAt: string; updatedAt: string; lastError?: string }

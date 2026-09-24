@@ -1,0 +1,6 @@
+import { argon2idAsync } from "@noble/hashes/argon2.js";
+const parameters = { m: 19_456, t: 2, p: 1, version: 0x13, dkLen: 32 } as const;
+const encode = (value: Uint8Array) => btoa(Array.from(value, byte => String.fromCharCode(byte)).join("")).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+function decode(value: string) { return Uint8Array.from(atob(value.replaceAll("-", "+").replaceAll("_", "/") + "===".slice((value.length + 3) % 4)), byte => byte.charCodeAt(0)); }
+export async function hashPassword(password: string, salt = crypto.getRandomValues(new Uint8Array(16))) { const hash = await argon2idAsync(password, salt, parameters); return `argon2id:v=19:m=${parameters.m},t=${parameters.t},p=${parameters.p}:${encode(salt)}:${encode(hash)}`; }
+export async function verifyPassword(password: string, verifier: string): Promise<boolean> { const [algorithm, version, costs, saltText, expectedText] = verifier.split(":"); if (algorithm !== "argon2id" || version !== "v=19" || costs !== `m=${parameters.m},t=${parameters.t},p=${parameters.p}` || !saltText || !expectedText) return false; try { const actual = await argon2idAsync(password, decode(saltText), parameters), expected = decode(expectedText); return actual.length === expected.length && actual.reduce((same, byte, index) => same | (byte ^ expected[index]), 0) === 0; } catch { return false; } }

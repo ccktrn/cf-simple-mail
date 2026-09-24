@@ -1,0 +1,9 @@
+import { DEFAULT_SESSION_TTL_SECONDS, LOCAL_SESSION_COOKIE, SESSION_COOKIE } from "../mail/constants";
+const encoder = new TextEncoder(), decoder = new TextDecoder(); const encode = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", ""); const decode = (value: string) => Uint8Array.from(atob(value.replaceAll("-", "+").replaceAll("_", "/") + "===".slice((value.length + 3) % 4)), c => c.charCodeAt(0));
+async function sign(value: string, secret: string) { const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]); return encode(new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(value)))); }
+export async function createSession(secret: string, ttl: number) { const payload = encode(encoder.encode(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + ttl }))); return `${payload}.${await sign(payload, secret)}`; }
+export async function validSession(token: string | undefined, secret: string) { if (!token) return false; const [payload, signature] = token.split("."); if (!payload || !signature || signature !== await sign(payload, secret)) return false; try { return JSON.parse(decoder.decode(decode(payload))).exp > Date.now() / 1000; } catch { return false; } }
+export function sessionTtl(value?: string) { const ttl = Number(value); return Number.isSafeInteger(ttl) && ttl > 0 ? ttl : DEFAULT_SESSION_TTL_SECONDS; }
+export function sessionCookieName(secure: boolean) { return secure ? SESSION_COOKIE : LOCAL_SESSION_COOKIE; }
+export function sessionCookie(token: string, ttl: number, secure = true) { return `${sessionCookieName(secure)}=${token}; HttpOnly; ${secure ? "Secure; " : ""}SameSite=Strict; Path=/; Max-Age=${ttl}`; }
+export function expiredSessionCookie(secure = true) { return `${sessionCookieName(secure)}=; HttpOnly; ${secure ? "Secure; " : ""}SameSite=Strict; Path=/; Max-Age=0`; }

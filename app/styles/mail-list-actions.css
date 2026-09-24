@@ -1,0 +1,1 @@
+.message-row{align-items:center;padding:0}.message-link{display:flex;gap:12px;flex:1;min-width:0;padding:17px;color:#28364d;text-decoration:none}.message-link:hover{background:#f3f7ff}.message-actions{display:flex;gap:2px;padding-right:10px}.message-actions .icon-button:hover{background:#edf3ff;color:#2563eb}.message-actions .icon-button.kept{color:#b47708}
