@@ -45,4 +45,5 @@ jobs:
       - name: Deployment summary
         env:
           DEPLOY_SHA: ${{ github.sha }}
-        run: printf '## Production deployment\n\nCommit: %s\n' "$DEPLOY_SHA" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          printf '## Production deployment\n\nCommit: %s\n' "$DEPLOY_SHA" >> "$GITHUB_STEP_SUMMARY"
